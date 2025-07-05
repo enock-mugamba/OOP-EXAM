@@ -1,0 +1,37 @@
+abstract class TaxCategory {
+    abstract double calculateVAT (double amount);
+}
+
+class Retailer extends TaxCategory {
+    @Override
+    double calculateVAT (double amount) {
+        return amount * 0.18; 
+    }
+}
+class Wholesaler extends TaxCategory {
+    @Override
+    double calculateVAT (double amount) {
+        return amount * 0.15; 
+    }
+}
+
+class Importer extends TaxCategory {
+    @Override
+    double calculateVAT(double amount) {
+        return amount * 0.10;
+    }
+}
+
+// Example usage to demonstrate calculateVAT is used
+class TransacationRecord {
+    public static void main(String[] args) {
+        TaxCategory retailer = new Retailer();
+        TaxCategory wholesaler = new Wholesaler();
+        TaxCategory importer = new Importer();
+
+        double amount = 1000.0;
+        System.out.println("Retailer VAT: " + retailer.calculateVAT(amount));
+        System.out.println("Wholesaler VAT: " + wholesaler.calculateVAT(amount));
+        System.out.println("Importer VAT: " + importer.calculateVAT(amount));
+    }
+}
