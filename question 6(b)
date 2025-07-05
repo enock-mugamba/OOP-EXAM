@@ -1,0 +1,127 @@
+import java.awt.*;
+import java.sql.*;
+import javax.swing.*;
+
+public class RegistrationApp extends JFrame {
+
+    private final JTextField regIdField;
+    private final JTextField nameField;
+    private final JTextField facultyField;
+    private final JTextField projectField;
+    private final JTextField contactField;
+    private final JTextField emailField;
+    private Connection conn;
+    
+    public RegistrationApp() {
+        // Initialize database connection
+        connectToDatabase();
+        
+        // Set up JFrame
+        setTitle("Student Registration");
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(7, 2, 10, 10));
+        
+        // Create components
+        add(new JLabel("Registration ID:"));
+        regIdField = new JTextField();
+        add(regIdField);
+        
+        add(new JLabel("Student Name:"));
+        nameField = new JTextField();
+        add(nameField);
+        
+        add(new JLabel("Faculty:"));
+        facultyField = new JTextField();
+        add(facultyField);
+        
+        add(new JLabel("Project Title:"));
+        projectField = new JTextField();
+        add(projectField);
+        
+        add(new JLabel("Contact Number:"));
+        contactField = new JTextField();
+        add(contactField);
+        
+        add(new JLabel("Email Address:"));
+        emailField = new JTextField();
+        add(emailField);
+        
+        // Register Button
+        JButton registerButton = new JButton("Register");
+        registerButton.addActionListener(e -> registerStudent());
+        add(registerButton);
+        
+        // Clear Button
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> clearFields());
+        add(clearButton);
+        
+        // Exit Button
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(e -> System.exit(0));
+        add(exitButton);
+        
+        setVisible(true);
+    }
+    
+    // (iii) Database Connection
+    private void connectToDatabase() {
+        try {
+            Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");
+            conn = DriverManager.getConnection("jdbc:ucanaccess://VUE_Exhibition.accdb");
+        } catch (ClassNotFoundException | SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database connection failed: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+    
+    // (iv) Register Button Functionality
+    private void registerStudent() {
+        try {
+            // Validate inputs
+            if (regIdField.getText().isEmpty() || nameField.getText().isEmpty() || 
+                facultyField.getText().isEmpty() || projectField.getText().isEmpty() || 
+                contactField.getText().isEmpty() || emailField.getText().isEmpty()) {
+                throw new IllegalArgumentException("All fields must be filled");
+            }
+            
+            // Parse registration ID as integer
+            int regId = Integer.parseInt(regIdField.getText());
+            
+            // Create and execute SQL statement
+            String sql = "INSERT INTO Participants (RegistrationID, StudentName, Faculty, ProjectTitle, ContactNumber, Email) VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, regId);
+                pstmt.setString(2, nameField.getText());
+                pstmt.setString(3, facultyField.getText());
+                pstmt.setString(4, projectField.getText());
+                pstmt.setString(5, contactField.getText());
+                pstmt.setString(6, emailField.getText());
+                pstmt.executeUpdate();
+            }
+            
+            JOptionPane.showMessageDialog(this, "Registration successful!");
+            clearFields();
+            
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid Registration ID! Must be a number.");
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database error: " + e.getMessage());
+        }
+    }
+    
+    private void clearFields() {
+        regIdField.setText("");
+        nameField.setText("");
+        facultyField.setText("");
+        projectField.setText("");
+        contactField.setText("");
+        emailField.setText("");
+    }
+    
+    public static void main(String[] args) {
+    }
+}
